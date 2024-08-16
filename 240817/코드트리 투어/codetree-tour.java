@@ -137,8 +137,10 @@ public class Main {
 
 		notCalculatedSet.remove(id);
 
-		benefitTreeSet.remove(benefits[id]);
-		benefits[id] = null;
+		if(benefits[id] != null) {
+			benefitTreeSet.remove(benefits[id]);
+			benefits[id] = null;
+		}
 	}
 
 	private static int selling() {
