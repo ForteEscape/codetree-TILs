@@ -160,7 +160,9 @@ public class Main {
 			}
 
 			// 4. 남은 데이터들을 Priority Queue 에 밀어넣는다.
-			waitingQueue.add(domainMap.get(domain).first());
+			if (!domainMap.get(domain).isEmpty()) {
+				waitingQueue.add(domainMap.get(domain).first());
+			}
 		}
 
 		if (waitingQueue.isEmpty()) {
@@ -175,7 +177,7 @@ public class Main {
 		String domain = getDomain(problem.url);
 		judgingProblemDomainSet.add(domain);
 
-		domainMap.get(domain).remove(problem);
+		domainMap.get(domain).pollFirst();
 		waitingQueueProblemUrlSet.remove(problem.url);
 	}
 
