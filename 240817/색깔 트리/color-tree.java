@@ -30,6 +30,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
+		StringBuilder sb = new StringBuilder();
 
 		int Q = Integer.parseInt(br.readLine());
 
@@ -53,12 +54,14 @@ public class Main {
 				changeColor(mid, color);
 			} else if (cmd == 300) {
 				int mid = Integer.parseInt(st.nextToken());
-
-				System.out.println(getColor(mid));
+				
+				sb.append(getColor(mid)).append("\n");
 			} else {
-				System.out.println(getPrice());
+				sb.append(getPrice()).append("\n");
 			}
 		}
+
+		System.out.print(sb);
 	}
 
 	private static void init() {
@@ -73,7 +76,7 @@ public class Main {
 	 * @param color 노드의 현재 색
 	 * @param maxDepth 최대 깊이
 	 */
-	private static void addNode(int mid, int pid, int color, int maxDepth) {
+	public static void addNode(int mid, int pid, int color, int maxDepth) {
 		if (pid == -1) {
 			rootNodeMidList.add(mid);
 
@@ -84,7 +87,7 @@ public class Main {
 			return;
 		}
 
-		if(isValid(pid)) {
+		if (isValid(pid)) {
 			Node newNode = add(mid, pid, color, maxDepth);
 			newNode.currentDepth = nodes[pid].currentDepth + 1;
 
@@ -95,7 +98,6 @@ public class Main {
 
 	/**
 	 * 노드를 생성한다.
-	 * O(N)
 	 *
 	 * @param mid 고유 id
 	 * @param pid 부모 노드 id
@@ -114,9 +116,9 @@ public class Main {
 	}
 
 	/**
-	 * 최대 깊이에 모순되는지 검증한다.
+	 * 최대 깊이에 모순되는지 검증한다. <br>
 	 * 처음 노드는 반드시 루트 노드가 된다. 이때 이 노드의 현재 깊이를 1로 정의한다.
-	 * 이후 새로운 노드가 들어와 검증될 때 그 노드의 깊이는 부모 노드의 현재 깊이 + 1 이다.
+	 * 이후 새로운 노드가 들어와 검증될 때 그 노드의 깊이는 부모 노드의 현재 깊이 + 1 이다. <br>
 	 * 이때 이 현재 깊이 - 부모 노드의 현재 깊이의 값이 부모 노드의 최대 깊이값 보다 크거나 같은지 검사한다.
 	 *
 	 * @param pid 부모 노드의 id
@@ -125,8 +127,8 @@ public class Main {
 	private static boolean isValid(int pid) {
 		int currentNodeDepth = nodes[pid].currentDepth + 1;
 
-		while(pid != -1) {
-			if(currentNodeDepth - nodes[pid].currentDepth >= nodes[pid].maxDepth) {
+		while (pid != -1) {
+			if (currentNodeDepth - nodes[pid].currentDepth >= nodes[pid].maxDepth) {
 				return false;
 			}
 
@@ -142,7 +144,7 @@ public class Main {
 	 * @param mid 대상 노드 id
 	 * @param color 변경할 색
 	 */
-	private static void changeColor(int mid, int color) {
+	public static void changeColor(int mid, int color) {
 		Node node = nodes[mid];
 
 		node.color = color;
@@ -154,7 +156,7 @@ public class Main {
 	 * @param mid 노드 id
 	 * @return mid 노드의 현재 색
 	 */
-	private static int getColor(int mid) {
+	public static int getColor(int mid) {
 		int currentNodeColor = nodes[mid].color;
 		int currentNodeVersion = nodes[mid].version;
 
@@ -165,7 +167,7 @@ public class Main {
 
 		int pid = nodes[mid].parent;
 
-		while(pid != -1) {
+		while (pid != -1) {
 			Node parentNode = nodes[pid];
 
 			if (parentNode.version > currentNodeVersion) {
@@ -184,27 +186,22 @@ public class Main {
 	 *
 	 * @return 모든 노드의 가치 제곱 값
 	 */
-	private static long getPrice() {
+	public static long getPrice() {
 		long result = 0L;
 
 		for (int rootNodeMid : rootNodeMidList) {
 			result += calcPrice(rootNodeMid, new HashSet<>());
 		}
-		
+
 		return result;
 	}
 
-	// recursion
-	/*
-	루트 노드에서 시작해야 한다.
-
-	내가 가진 자식 노드들을 순회한다.
-	순회하면서 자기 자신을 호출한다.
-	만약 자식이 없다면(또는 모두 순회했다면) 가치 계산을 수행한다.
-		이때 가치 계산은 다음과 같이 수행한다.
-		1. 색이 들어 있는 Set 에서 내 현재 색과 다른 색들의 수를 카운트한다.
-	나의 색을 Set 에 넣는다. - 이때 위의 getColor 를 사용해볼 수 있다.
-	이후 내 가치를 제곱하여 반환한다.
+	/**
+	 * 가치 총합의 제곱을 반환하는 함수
+	 *
+	 * @param mid 현재 노드
+	 * @param colorSet 내 자식 노드들의 색 집합
+	 * @return 현재까지 탐사한 가치 총합의 제곱 값
 	 */
 	private static long calcPrice(int mid, Set<Integer> colorSet) {
 		Node currentNode = nodes[mid];
@@ -222,14 +219,12 @@ public class Main {
 			// 이후 해당 서브트리의 한 분기에서 나온 색들을 정리한다.
 			colorSet.clear();
 		}
-		
-		int currentNodeColor = getColor(mid);
 
-		long price = 0L;
+		int currentNodeColor = getColor(mid);
+		long price = currentColorSet.size();
+
 		if (!currentColorSet.contains(currentNodeColor)) {
-			price = currentColorSet.size() + 1;
-		} else {
-			price = currentColorSet.size();
+			price++;
 		}
 
 		colorSet.add(currentNodeColor);
@@ -237,4 +232,5 @@ public class Main {
 
 		return result + price * price;
 	}
+
 }
