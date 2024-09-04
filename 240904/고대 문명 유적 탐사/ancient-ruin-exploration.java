@@ -120,7 +120,7 @@ public class Main {
 
 		StringBuilder sb = new StringBuilder();
 		for (int relicCount : answerList) {
-			sb.append(relicCount).append("\n");
+			sb.append(relicCount + " ");
 		}
 		System.out.print(sb);
 	}
