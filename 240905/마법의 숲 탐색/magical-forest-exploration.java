@@ -47,15 +47,19 @@ public class Main {
 			st = new StringTokenizer(br.readLine());
 
 			int startCol = Integer.parseInt(st.nextToken());
-			int startRow = 1;
 			int startDir = Integer.parseInt(st.nextToken());
 
-			int currentRow = moveDown(startCol, startRow);
+			int currentRow = 1;
 			int currentCol = startCol;
 			int currentDir = startDir;
 
 			while(true) {
 				boolean flag = false;
+				int nextRow = moveDown(currentCol, currentRow);
+				if(nextRow != currentRow) {
+					currentRow = nextRow;
+					continue;
+				}
 
 				if(isMoveableToLeft(currentCol, currentRow)) { // 좌측 무빙 가능하다면
 					currentCol--;
