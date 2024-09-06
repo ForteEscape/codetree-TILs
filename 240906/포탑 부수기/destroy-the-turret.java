@@ -41,7 +41,9 @@ public class Main {
 		init();
 		for (int turn = 0; turn < K; turn++) {
 			initTower();
-
+			if(attackerTowerList.size() == 1) {
+				break;
+			}
 			Tower attacker = selectAttacker();
 			Tower target = selectTarget();
 
@@ -49,6 +51,9 @@ public class Main {
 			attacker.attackCnt = 0;
 
 			peacefulTower.remove(attacker);
+			for (Tower tower : peacefulTower) {
+				tower.attackCnt++;
+			}
 			peacefulTower.remove(target);
 
 			attackTraceList = new ArrayList<>();
@@ -63,9 +68,6 @@ public class Main {
 				attackLaser(attacker.atk);
 			}
 
-			if(attackerTowerList.size() == 1) {
-				break;
-			}
 			restoreTower();
 		}
 
@@ -120,7 +122,7 @@ public class Main {
 			if (nx >= M) {
 				nx = nx % M;
 			} else if (nx < 0) {
-				nx = nx % M;
+				nx = (nx + M) % M;
 			}
 
 			towers[ny][nx].atk -= (attackerAtk / 2);
