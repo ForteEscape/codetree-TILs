@@ -75,7 +75,7 @@ public class Main {
 			attackTraceList = isReachable(attacker.y, attacker.x, target);
 
 			if (attackTraceList.isEmpty()) {
-				attackBomb(target, attacker.atk);
+				attackBomb(target, attacker);
 			} else {
 				attackLaser(attacker.atk);
 			}
@@ -124,8 +124,8 @@ public class Main {
 		}
 	}
 
-	private static void attackBomb(Tower target, int attackerAtk) {
-		towers[target.y][target.x].atk -= attackerAtk;
+	private static void attackBomb(Tower target, Tower attacker) {
+		towers[target.y][target.x].atk -= attacker.atk;
 
 		if (towers[target.y][target.x].atk <= 0) {
 			towers[target.y][target.x].atk = 0;
@@ -147,7 +147,9 @@ public class Main {
 				nx = (nx + M) % M;
 			}
 
-			towers[ny][nx].atk -= (attackerAtk / 2);
+			if (towers[ny][nx] == attacker) continue;
+
+			towers[ny][nx].atk -= (attacker.atk / 2);
 			peacefulTower.remove(towers[ny][nx]);
 			if (towers[ny][nx].atk < 0) {
 				towers[ny][nx].atk = 0;
