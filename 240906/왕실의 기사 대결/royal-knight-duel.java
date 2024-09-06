@@ -2,7 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -30,7 +32,7 @@ public class Main {
 	private static Knight[] knights;
 	private static int[] dy = {-1, 0, 1, 0};
 	private static int[] dx = {0, 1, 0, -1};
-	private static List<Integer> pushedList;
+	private static Set<Integer> pushedSet;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -71,8 +73,14 @@ public class Main {
 				continue;
 			}
 
-			pushedList = new ArrayList<>();
-			check(idx, dir);
+			pushedSet = new HashSet<>();
+			boolean flag = check(idx, dir);
+
+			if(!flag) {
+				continue;
+			}
+
+			move(idx, dir);
 			calcDamage();
 		}
 
@@ -86,8 +94,20 @@ public class Main {
 		System.out.println(ans);
 	}
 
+	private static void move(int idx, int dir) {
+		knights[idx].y += dy[dir];
+		knights[idx].x += dx[dir];
+
+		for(int element : pushedSet) {
+			Knight knight = knights[element];
+
+			knight.y += dy[dir];
+			knight.x += dx[dir];
+		}
+	}
+
 	private static void calcDamage() {
-		for(int element : pushedList) {
+		for(int element : pushedSet) {
 			Knight knight = knights[element];
 			int cnt = 0;
 			for(int y = knight.y; y < knight.y + knight.height; y++) {
@@ -116,24 +136,16 @@ public class Main {
 				for(int k = 1; k <= N; k++) {
 					if (k == idx) continue;
 
-					if(checkIsOverlap(i, j, k)) {
-						pushedList.add(k);
+					if(!pushedSet.contains(k) && checkIsOverlap(i, j, k)) {
+						pushedSet.add(k);
 						boolean flag = check(k, dir);
 						if(!flag) {
-							pushedList = new ArrayList<>();
 							return false;
 						}
 					}
 				}
 			}
 		}
-
-		// 이동
-		//board[knight.y][knight.x] = 0;
-		knight.y = ny;
-		knight.x = nx;
-		//board[knight.y][knight.x] = idx;
-
 		//print();
 
 		return true;
