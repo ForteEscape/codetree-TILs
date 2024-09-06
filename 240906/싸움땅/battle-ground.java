@@ -167,7 +167,6 @@ public class Main {
 			boolean flag = false;
 			int ny = player.y + dy[player.dir];
 			int nx = player.x + dx[player.dir];
-			System.out.println(player.dir);
 
 			if (ny < 0 || ny >= N || nx < 0 || nx >= N) {
 				player.dir = (player.dir + 1) % 4;
