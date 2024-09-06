@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,12 +26,23 @@ public class Main {
 		}
 	}
 
+	public static class Location {
+		int y;
+		int x;
+		List<Location> trace;
+
+		public Location(int y, int x) {
+			this.y = y;
+			this.x = x;
+			this.trace = null;
+		}
+	}
+
 	private static int N, M, K;
 	private static Tower[][] towers;
 	private static List<Tower> attackerTowerList, attackedTowerList;
-	private static List<int[]> attackTraceList;
+	private static List<Location> attackTraceList;
 	private static boolean[][] visited;
-	private static int minDist;
 	private static Set<Tower> peacefulTower;
 
 	private static final int[] dy = {0, 1, 0, -1};
@@ -58,9 +71,8 @@ public class Main {
 
 			attackTraceList = new ArrayList<>();
 			visited = new boolean[N][M];
-			minDist = Integer.MAX_VALUE;
 
-			isReachable(attacker.y, attacker.x, target, 0, new ArrayList<>());
+			attackTraceList = isReachable(attacker.y, attacker.x, target);
 
 			if (attackTraceList.isEmpty()) {
 				attackBomb(target, attacker.atk);
@@ -78,6 +90,16 @@ public class Main {
 			}
 		}
 		System.out.println(maxAtk);
+	}
+
+	private static void print() {
+		for (int i = 0; i < N; i++) {
+			for (int j = 0; j < M; j++) {
+				System.out.print(towers[i][j].atk + " ");
+			}
+			System.out.println();
+		}
+		System.out.println("=====");
 	}
 
 	private static void initTower() {
@@ -134,58 +156,72 @@ public class Main {
 	}
 
 	private static void attackLaser(int attackerAtk) {
-		for (int i = 0; i < attackTraceList.size(); i++) {
-			int[] location = attackTraceList.get(i);
+		for (int i = 1; i < attackTraceList.size(); i++) {
+			Location location = attackTraceList.get(i);
 
-			peacefulTower.remove(towers[location[0]][location[1]]);
+			peacefulTower.remove(towers[location.y][location.x]);
 
 			if (i == attackTraceList.size() - 1) {
-				towers[location[0]][location[1]].atk -= attackerAtk;
-				if (towers[location[0]][location[1]].atk < 0) {
-					towers[location[0]][location[1]].atk = 0;
+				towers[location.y][location.x].atk -= attackerAtk;
+				if (towers[location.y][location.x].atk < 0) {
+					towers[location.y][location.x].atk = 0;
 				}
 				continue;
 			}
-			towers[location[0]][location[1]].atk -= (attackerAtk / 2);
-			if (towers[location[0]][location[1]].atk < 0) {
-				towers[location[0]][location[1]].atk = 0;
+			towers[location.y][location.x].atk -= (attackerAtk / 2);
+			if (towers[location.y][location.x].atk < 0) {
+				towers[location.y][location.x].atk = 0;
 			}
 		}
 	}
 
-	private static void isReachable(int y, int x, Tower target, int dist, List<int[]> traceList) {
-		if(y == target.y && x == target.x) {
-			if (dist < minDist) {
-				minDist = dist;
-				attackTraceList = new ArrayList<>(traceList);
-			}
-			return;
-		}
+	private static List<Location> isReachable(int y, int x, Tower target) {
+		Deque<Location> queue = new ArrayDeque<>();
+		visited[y][x] = true;
 
-		for (int i = 0; i < 4; i++) {
-			int ny = y + dy[i];
-			int nx = x + dx[i];
+		Location start = new Location(y, x);
+		start.trace = new ArrayList<>();
 
-			if (ny >= N) {
-				ny = ny % N;
-			} else if (ny < 0) {
-				ny = (ny + N) % N;
+		queue.add(start);
+
+		while (!queue.isEmpty()) {
+			Location location = queue.poll();
+
+			if (location.y == target.y && location.x == target.x) {
+				location.trace.add(new Location(target.y, target.x));
+				return location.trace;
 			}
 
-			if (nx >= M) {
-				nx = nx % M;
-			} else if (nx < 0) {
-				nx = (nx + M) % M;
-			}
+			for (int i = 0; i < 4; i++) {
+				int ny = location.y + dy[i];
+				int nx = location.x + dx[i];
 
-			if (towers[ny][nx].atk != 0 && !visited[ny][nx]) {
+				if (ny >= N) {
+					ny = ny % N;
+				} else if (ny < 0) {
+					ny = (ny + N) % N;
+				}
+
+				if (nx >= M) {
+					nx = nx % M;
+				} else if (nx < 0) {
+					nx = (nx + M) % M;
+				}
+
+				if (towers[ny][nx].atk == 0 || visited[ny][nx]) {
+					continue;
+				}
+
 				visited[ny][nx] = true;
-				traceList.add(new int[]{ny, nx});
-				isReachable(ny, nx, target, dist + 1, traceList);
-				traceList.remove(traceList.size() - 1);
-				visited[ny][nx] = false;
+				Location next = new Location(ny, nx);
+				next.trace = new ArrayList<>(location.trace);
+				next.trace.add(location);
+
+				queue.addLast(next);
 			}
 		}
+
+		return new ArrayList<>();
 	}
 
 	private static Tower selectAttacker() {
