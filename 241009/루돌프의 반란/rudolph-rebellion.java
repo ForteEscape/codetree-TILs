@@ -62,9 +62,15 @@ public class Main {
 			moveRudolf(currentTurn);
 			moveSanta(currentTurn);
 
+			boolean flag = false;
 			for(int i = 0; i < P; i++) {
 				if(santas[i].isFailed) continue;
 				santas[i].score += 1;
+				flag = true;
+			}
+
+			if (!flag) {
+				break;
 			}
 
 			currentTurn++;
