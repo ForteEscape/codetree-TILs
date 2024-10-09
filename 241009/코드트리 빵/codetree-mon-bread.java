@@ -58,9 +58,11 @@ public class Main {
 			int y = Integer.parseInt(st.nextToken());
 			int x = Integer.parseInt(st.nextToken());
 			store[i] = new Location(y, x);
-
-			searchBaseCampLocation(y, x, i);
 		}
+
+		// for (int i = 1; i <= M; i++) {
+		// 	System.out.println(i + " : " + Arrays.toString(store[i].baseCampLocation.get(0)));
+		// }
 
 		moveablePlayers = new ArrayList<>();
 		visited = new boolean[N + 1][N + 1];
@@ -74,15 +76,22 @@ public class Main {
 					num++;
 					continue;
 				}
+				//System.out.println("player " + num + "'s goal : (" + store[num].y + ", " + store[num].x + ")");
 				//System.out.println("player " + num + "'s location : (" + p.y + ", " + p.x + ")");
 				move(p, num);
 				//System.out.println("player " + num + "'s after location : (" + p.y + ", " + p.x + ")");
 				num++;
 			}
 
+			// printVisit();
 			checkArrive();
 
 			if (time <= M) {
+				// 배정할때 기준으로 잡아야함
+				for (int i = 1; i <= M; i++) {
+					searchBaseCampLocation(store[i].y, store[i].x, i);
+				}
+
 				for (int[] element : store[time].baseCampLocation) {
 					if (!visited[element[0]][element[1]]) {
 						visited[element[0]][element[1]] = true;
@@ -93,15 +102,26 @@ public class Main {
 			}
 
 			if(checkAllArrived()) {
-				//System.out.println("all arrived");
+				// System.out.println("all arrived");
 				break;
 			}
 
 			time++;
-			//System.out.println("====");
+
+			// System.out.println("====");
 		}
 
 		System.out.println(time);
+	}
+
+	private static void printVisit() {
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= N; j++) {
+				System.out.print(visited[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println("========");
 	}
 
 	private static boolean checkAllArrived() {
@@ -126,7 +146,7 @@ public class Main {
 			}
 
 			if (store[idx].y == p.y && store[idx].x == p.x) {
-				//System.out.println("player " + idx + " has arrived");
+				// System.out.println("player " + idx + " has arrived");
 				p.reached = true;
 				visited[p.y][p.x] = true;
 			}
@@ -136,6 +156,7 @@ public class Main {
 
 	private static void move(Player p, int num) {
 		List<int[]> moveableLocationList = new ArrayList<>();
+		// System.out.println("num : " + num + " " + p.y + " " + p.x);
 
 		for (int i = 0; i < 4; i++) {
 			int ny = p.y + dy[i];
@@ -188,7 +209,7 @@ public class Main {
 			}
 		}
 
-		return -1;
+		return Integer.MAX_VALUE;
 	}
 
 	private static boolean[][] copyFromVisited() {
@@ -204,10 +225,10 @@ public class Main {
 	}
 
 	private static void searchBaseCampLocation(int y, int x, int num) {
-		visited = new boolean[N + 1][N + 1];
+		boolean[][] visited2 = copyFromVisited();
 		Deque<int[]> queue = new ArrayDeque<>();
 
-		visited[y][x] = true;
+		visited2[y][x] = true;
 		queue.addLast(new int[]{y, x, 0});
 
 		store[num].baseCampLocation = new ArrayList<>();
@@ -222,11 +243,11 @@ public class Main {
 				int ny = cur[0] + dy[i];
 				int nx = cur[1] + dx[i];
 
-				if (isUnreachable(ny, nx) || visited[ny][nx]) {
+				if (isUnreachable(ny, nx) || visited2[ny][nx]) {
 					continue;
 				}
 
-				visited[ny][nx] = true;
+				visited2[ny][nx] = true;
 				queue.addLast(new int[]{ny, nx, cur[2] + 1});
 			}
 		}
