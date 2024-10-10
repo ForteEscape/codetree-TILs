@@ -233,6 +233,6 @@ public class Main {
 	}
 
 	private static boolean isUnreachable(int y, int x) {
-		return y < 1 || y > N || x < 1 || x > N;
+		return y < 1 || y > 4 || x < 1 || x > 4;
 	}
 }
